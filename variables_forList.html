@@ -1,0 +1,87 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Get the Latest Data for Sites in SiteList</title>
+
+    <script type="text/javascript"> 
+    function get_data(form) {
+      var json_script = document.getElementById('json');
+      if (json_script) {
+        console.log('removing script element "json"');
+        json_script.parentNode.removeChild(json_script);
+      }
+      console.log('get_data form.name:['+form.name+']');
+
+      document.getElementById('result').innerHTML = 'preparing ...';
+      var sitelist = form.sitelist.value;
+      var datasource  = form.datasource.value;
+      console.log('get_data sitelist:['+sitelist+'] datasource:['+datasource+']');
+
+      var url = 'http://realtimedata.water.nsw.gov.au/cgi/webservice.server.pl?jsoncallback=printData&{"function":"get_variable_list","version":"1","params":{"site_list":"'+sitelist+'","datasource":"PROV"}}'; 
+	  
+      console.log('get_data url:['+url+']');
+	  
+      var script = document.createElement('script');
+      script.setAttribute('id', 'json' );
+      script.setAttribute('src', url );
+      document.getElementById('result').innerHTML = 'retrieving data ...';
+      document.getElementsByTagName('head')[0].appendChild(script);
+    }
+
+    function printData(data) { 
+      //alert(data); 
+
+	  var header='<tr><td>SiteId</td><td>VarId</td><td>Variable</td><td>Units</td><td>StartDateTime</td><td>EndDateTime</td></tr>'
+      var results = new Array();
+	  
+	  var sites = data._return.sites;
+	  for (var s=0; s<sites.length; s++) {
+
+			var site   = sites[s].site;
+			var variables = sites[s].variables;
+			for (var v=0; v<variables.length; v++) {
+			   	var varid = variables[v].variable;
+			   	var name = variables[v].name;
+			   	var units = variables[v].units;
+			   	var start = variables[v].period_start;
+			   	var end = variables[v].period_end;
+				
+				results.push('<tr><td>'+site+'</td><td>'+varid+'</td><td>'+name+'</td><td>'+units+'</td><td>'+start+'</td><td>'+end+'</td></tr>');
+			}
+	  }
+	  
+	  //results.reverse(); 
+      document.getElementById('result').innerHTML = '<table>'+header+results.join('\n')+'</table>';
+    } 
+
+    </script>
+
+  </head>
+
+  <body>
+    <p>
+      Find out what variables are available for sites in a sitelist expression.
+    </p>
+
+    <form name="getdata">
+      <p>Sitelist 
+        <input name="sitelist" type="text" value="210002" size="100" />
+      </p>
+      <p>DataSource 
+        <input name="datasource" type="text" value="PROV" />
+      </p>
+      <p>
+        
+        <input name="get" type="button" onclick="get_data(this.form)" value="get data" />
+      </p>
+    </form>
+
+    <hr />
+    <div id="result">
+    
+    </div>
+    <hr />
+
+  </body>
+</html>

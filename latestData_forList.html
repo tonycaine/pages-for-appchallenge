@@ -1,0 +1,84 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Get the Latest Data for Sites in SiteList</title>
+
+    <script type="text/javascript"> 
+    function get_data(form) {
+      var json_script = document.getElementById('json');
+      if (json_script) {
+        console.log('removing script element "json"');
+        json_script.parentNode.removeChild(json_script);
+      }
+      console.log('get_data form.name:['+form.name+']');
+
+      document.getElementById('result').innerHTML = 'preparing ...';
+      var sitelist = form.sitelist.value;
+      var varfrom  = form.varfrom.value;
+      var varto    = form.varto.value;
+      console.log('get_data sitelist:['+sitelist+'] varfrom:['+varfrom+'] varto:['+varto+']');
+
+      var url = 'http://realtimedata.water.nsw.gov.au/cgi/webservice.server.pl?jsoncallback=printData&{"function":"get_latest_ts_values","version":"1","params":{"site_list":"'+sitelist+'","datasource":"CP","trace_list":[{"varfrom":"'+varfrom+'","varto":"'+varto+'"}]}}'; 
+      var script = document.createElement('script');
+      script.setAttribute('id', 'json' );
+      script.setAttribute('src', url );
+      document.getElementById('result').innerHTML = 'retrieving data ...';
+      document.getElementsByTagName('head')[0].appendChild(script);
+    }
+
+    function printData(data) { 
+      //alert(data); 
+      //alert('data.error_num:' + data.error_num + '\ndata.buff_required:' + data.buff_required + '\ndata.buff_supplied:' + data.buff_supplied + '\ndata._return.traces[0].varfrom_details.short_name:' + data._return.traces[0].varfrom_details.short_name ); 
+
+	  var header='<tr><td>Datetime</td><td>SiteId</td><td>Value</td><td>Quality</td></tr>'
+      var results = new Array();
+      for (var obj in data._return) { 
+        // webservice.server2.pl pre-appends 'zzzzzz_' to keys starting with digits to avoid JS errors traversing data object 
+        var site = obj.replace(/zzzzzz_/,'');
+        var value = eval('data._return.'+obj+'[0].v');
+        if (typeof value !== 'undefined') {
+          var datetime = eval('data._return.'+obj+'[0].t');
+          var quality  = eval('data._return.'+obj+'[0].q');
+		  if (quality <150){ //do not output data that is not usable - VERY BAD QUALITY
+          		results.push('<tr><td>'+datetime+'</td><td>'+site+'</td><td align="right">'+value+'</td><td>'+quality+'</td></tr>');
+		  }
+        }
+      }
+	  
+	  results.reverse(); 
+      document.getElementById('result').innerHTML = '<table>'+header+results.join('\n')+'</table>';
+    } 
+
+    </script>
+
+  </head>
+
+  <body>
+    <p>
+      use a sitelist expression and hydstra variables to get latest values.
+    </p>
+
+    <form name="getdata">
+      <p>Sitelist 
+        <input name="sitelist" type="text" value="FILTER(TSFILES(PROV),MATCH(210*))" size="100" />
+      </p>
+      <p>VarFrom 
+        <input name="varfrom" type="text" value="100" /> 
+        VarTo 
+        <input name="varto" type="text" value="141" />
+      </p>
+      <p>
+        
+        <input name="get" type="button" onclick="get_data(this.form)" value="get data" />
+      </p>
+    </form>
+
+    <hr />
+    <div id="result">
+    
+    </div>
+    <hr />
+
+  </body>
+</html>

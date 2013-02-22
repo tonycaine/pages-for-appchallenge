@@ -1,0 +1,97 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Get Site and Locations from SiteList that are near Point</title>
+
+    <script type="text/javascript"> 
+    function get_data(form) {
+      var json_script = document.getElementById('json');
+      if (json_script) {
+        console.log('removing script element "json"');
+        json_script.parentNode.removeChild(json_script);
+      }
+      console.log('get_data form.name:['+form.name+']');
+
+      document.getElementById('result').innerHTML = 'preparing ...';
+      var sitelist  = form.sitelist.value;
+      var latitude  = form.latitude.value;
+      var longitude = form.longitude.value;
+      var radiuskm  = form.radius.value; //starts as km -- least that's what form asks
+	  // as geo filter method needs radius in degrees 1 degree approx 100 km
+	  var radiusdegree = radiuskm/100;
+	  
+      console.log('get_data sitelist:['+sitelist+'] latitude:['+latitude+'] longitude:['+longitude+']');
+      console.log('get_data radiuskm:['+radiuskm+'] radiusdegree:['+radiusdegree+']');
+
+
+      var url = 'http://realtimedata.water.nsw.gov.au/cgi/webservice.server.pl?jsoncallback=printData&{"params":{"return_type":"array",'+
+	  '"sitelist_filter":"'+sitelist+'",'+
+	  '"geo_filter":{"circle":["'+latitude+'","'+longitude+'","'+radiusdegree+'"]},'+    '"field_list":["station","stname","shortname","latitude","longitude","elev"],"table_name":"site"},"function":"get_db_info","version":2}'; 
+      console.log('url:['+url+']'); 
+ 
+      var script = document.createElement('script');
+      script.setAttribute('id', 'json' );
+      script.setAttribute('src', url );
+      document.getElementById('result').innerHTML = 'retrieving data ...';
+      document.getElementsByTagName('head')[0].appendChild(script);
+    }
+
+    function printData(data) { 
+
+	  var header='<tr><td>SiteId</td><td>Latitude</td><td>Longitude</td><td>Elev</td><td>ShortName</td><td>LongName</td></tr>';
+      var results = new Array();
+	  var rows = data._return.rows;
+	  for (var i=0; i<rows.length; i++) {
+
+			var station   = rows[i].station;
+			var shortname = rows[i].shortname;
+			var stname   = rows[i].stname;
+			var latitude   = rows[i].latitude;
+			var longitude   = rows[i].longitude;
+			var elev   = rows[i].elev;
+			  
+			results.push('<tr><td>'+station+'</td><td>'+latitude+'</td><td>'+longitude+'</td><td>'+elev+'</td><td>'+shortname+'</td><td>'+stname+'</td></tr>');
+
+      }
+	  
+
+	  //results.reverse(); 
+      document.getElementById('result').innerHTML = '<table>'+header+results.join('\n')+'</table>';
+    } 
+
+    </script>
+
+  </head>
+
+  <body>
+    <p>
+    Use a location (Latitude and Longitude) and Radius to get filter a sitelist.</p>
+    <p>Return sites with locations. </p>
+
+    <form name="getdata">
+      <p>Sitelist 
+        <input name="sitelist" type="text" value="FILTER(TSFILES(PROV),MATCH(210*))" size="100" />
+      </p>
+      <p>Latitude 
+        <input name="latitude" type="text" value="-32.25" /> 
+      </p>
+      <p>Longitude
+        <input name="longitude" type="text" value="150.8" />
+      </p>
+      <p>Distance 
+        <input name="radius" type="text" value="25" /> km</p>
+      <p>
+        
+        <input name="get" type="button" onclick="get_data(this.form)" value="get data" />
+      </p>
+    </form>
+
+    <hr />
+    <div id="result">
+    
+    </div>
+    <hr />
+
+  </body>
+</html>
