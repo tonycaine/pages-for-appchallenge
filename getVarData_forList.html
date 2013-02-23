@@ -1,0 +1,116 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Get the Latest Data for Sites in SiteList</title>
+
+    <script type="text/javascript"> 
+    function get_data(form) {
+      var json_script = document.getElementById('json');
+      if (json_script) {
+        console.log('removing script element "json"');
+        json_script.parentNode.removeChild(json_script);
+      }
+      console.log('get_data form.name:['+form.name+']');
+
+      document.getElementById('result').innerHTML = 'preparing ...';
+      var sitelist = form.sitelist.value;
+      //
+	  var varfrom  = form.varfrom.value;
+      var varto    = form.varto.value;
+	  //
+      var datefrom  = form.datefrom.value;
+      var dateto    = form.dateto.value;
+	  //
+      console.log('get_data sitelist:['+sitelist+']');
+      console.log('get_data varfrom:['+varfrom+'] varto:['+varto+']');
+      console.log('get_data datefrom:['+datefrom+'] dateto:['+dateto+']');
+
+      //var url = 'http://realtimedata.water.nsw.gov.au/cgi/webservice.server.pl?jsoncallback=printData&{"function":"get_latest_ts_values","version":"1","params":{"site_list":"'+sitelist+'","datasource":"CP","trace_list":[{"varfrom":"'+varfrom+'","varto":"'+varto+'"}]}}';
+	  
+	  var url = 'http://realtimedata.water.nsw.gov.au/cgi/webservice.server.pl?jsoncallback=printData&{'+
+	  '"function":"get_ts_traces","version":1,"params":{"site_list":"'+sitelist+
+	  '","start_time":"'+datefrom+
+	  '","end_time":"'+dateto+
+	  '","varfrom":"'+varfrom+
+	  '","varto":"'+varto+
+	  '","interval":"day"'+
+	  ',"datasource":"CP"'+
+	  ',"data_type":"mean","multiplier":"1"}'+
+	  '}';
+      console.log('get_data url:['+ url + ']');
+	  
+	  
+      var script = document.createElement('script');
+      script.setAttribute('id', 'json' );
+      script.setAttribute('src', url );
+      document.getElementById('result').innerHTML = 'retrieving data ...';
+      document.getElementsByTagName('head')[0].appendChild(script);
+    }
+
+    function printData(data) { 
+      //alert(data); 
+
+		  var header='<tr><td>SiteId</td><td>VarToId</td><td>DateTime</td><td>Value</td><td>Quality</td></tr>';
+		  var results = [];
+		  //
+		  var traces= data._return.traces;
+		  
+		  for (var t=0; t<traces.length; t++) {
+			var varto=traces[t].varto_details.variable;
+			var trace=traces[t].trace;
+			var site = traces[t].site;
+			for (var i=0; i<trace.length; i++) {
+			
+			  var value = trace[i].v;
+			  var datetime =trace[i].t;
+			  var quality  = trace[i].q;
+			  if (quality <150){ //do not output data that is not usable - VERY BAD QUALITY
+			  	line='<tr><td>'+site+'</td><td>'+varto+'</td><td>'+datetime+'</td><td >'+value+'</td><td>'+quality+'</td></tr>';
+				results.push(line);
+			  }
+			}
+		  }
+	  results.reverse(); 
+      document.getElementById('result').innerHTML = '<table boder="1">'+header+results.join('\n')+'</table>';
+    } 
+
+    </script>
+
+  </head>
+
+  <body>
+    <p>
+      use a sitelist expression and hydstra variables to get latest values.
+    </p>
+
+    <form name="getdata">
+      <p>Sitelist 
+        <input name="sitelist" type="text" value="FILTER(TSFILES(PROV),MATCH(210*))" size="100" />
+      </p>
+      <p>VarFrom 
+        <input name="varfrom" type="text" value="100" /> <br/>
+        VarTo 
+        <input name="varto" type="text" value="141" /><br/>
+      </p>
+      
+       <p>DateFrom 
+        <input name="datefrom" type="text" value="20130101000000" /><br/> 
+        DateTo 
+        <input name="dateto" type="text" value="20130201000000" /><br/>
+      </p>
+      
+      <p>
+        
+        <input name="get" type="button" onclick="get_data(this.form)" value="get data" />
+      </p>
+    </form>
+
+    <hr />
+    <div id="result">
+    
+    </div>
+    <hr />
+
+  </body>
+</html>
