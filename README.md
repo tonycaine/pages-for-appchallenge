@@ -3,6 +3,8 @@ pages-for-appchallenge
 
 Pages containing the building blocks for NSW App Challenge.
 
+http://www.data.nsw.gov.au/apps4nsw.php  (23-24 Feb 2013, UT Sydney, NSW, Aust)
+
 Use the lists of sites  in - (lists-variable-site.doc) to find intelligent groups of related sites.
 
 Use the code in the html to see how to access the web services.
