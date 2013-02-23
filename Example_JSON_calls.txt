@@ -1,0 +1,1101 @@
+VARIOUS TESTING CASES for the JSON API
+
+    dotest('example_get_datasources_by_site',{
+      'function' => 'get_datasources_by_site',
+      'version'  => 1,
+      'params'   => {
+        'site_list' => "210001,210002,210004"
+      }
+    });
+
+    ##################################################
+    #####         get_sites_by_datasource        #####
+    ##################################################
+
+    dotest('example_get_sites_by_datasource',{
+      'function' => 'get_sites_by_datasource',
+      'version'  => 1,
+      'params'   => {
+        'datasources' => ["A","B"]
+      }
+    });
+
+    ##################################################
+    #####            get_variable_list           #####
+    ##################################################
+
+    dotest('NOW_A_get_variable_list',{
+      'function' => 'get_variable_list',
+      'version'  => 1,
+      'params'   => {
+        'site_list'  => "210001,210002,210004",
+        'datasource' => "A"
+      }
+    },5000);
+    
+    dotest('NOW_PROV_get_variable_list',{
+      'function' => 'get_variable_list',
+      'version'  => 1,
+      'params'   => {
+        'site_list'  => "210001,210002,210004",
+        'datasource' => "PROV"
+      }
+    },5000);
+    
+    
+    ##################################################
+    #####              get_ts_traces             #####
+    ##################################################
+
+    dotest('example_get_ts_traces',{
+      'function' => 'get_ts_traces',
+      'version'  => 1,
+      'params'   => {
+        'site_list'   => "210001,210002,210004",
+        'datasource'  => 'A',
+        'varfrom'     => '100.00',
+        'varto'       => '100.00',
+        'start_time'  => '20110801000000',
+        'end_time'    => '20120805000000',
+        'data_type'   => 'mean',
+        'interval'    => 'day',
+        'multiplier'  => '1'
+      }
+    },1500);
+    
+    #will not work
+    dotest('TEST_RELDATE_get_ts_traces',{
+      'function' => 'get_ts_traces',
+      'version'  => 1,
+      'params'   => {
+        'site_list'   => "210001,210002,210004",
+        'datasource'  => 'A',
+        'varfrom'     => '100.00',
+        'varto'       => '100.00',
+        'start_time'  => 'N-1/N-1/N-1',
+        'end_time'    => 'N/N/N',
+        'data_type'   => 'mean',
+        'interval'    => 'day',
+        'multiplier'  => '1'
+      }
+    },1500);    
+
+    dotest('NOW_CP_get_ts_traces',{
+      'function' => 'get_ts_traces',
+      'version'  => 1,
+      'params'   => {
+        'site_list'  => "210001,210002,210004",
+        'datasource' => 'CP',
+        'varfrom'    => '100.00',
+        'varto'      => '100.00',
+        'start_time' => '20110101000000',
+        'end_time'   => '20120101000000',
+        'data_type'  => 'mean',
+        'interval'   => 'day',
+        'multiplier' => '1'
+      }
+    },5000);
+    
+        dotest('example_get_ts_traces_error_return',{
+      'function' => 'get_ts_traces',
+      'version'  => 1,
+      'params'   => {
+        'site_list'  => "210001,210002,210004",
+        'datasource' => 'X',
+        'varfrom'    => '100.00',
+        'varto'      => '100.00',
+        'start_time' => '20110101000000',
+        'end_time'   => '20120101000000',
+        'data_type'  => 'mean',
+        'interval'   => 'day',
+        'multiplier' => '1'
+      }
+    },5000);
+
+    ##################################################
+    #####          get_latest_ts_values          #####
+    ##################################################
+
+    dotest('example_get_latest_ts_values',{
+      'function' => 'get_latest_ts_values',
+      'version'  => 1,
+      'params'   => {
+        'site_list'  => "210001,210002,210004",
+        'datasource' => 'A',
+        'trace_list' => [
+          {
+            'varfrom'  => '100.00',
+            'varto'    => '100',
+            'lookback' => '60'
+          },{
+            'varfrom' => '10.00',
+            'varto'   => '10',
+            'now'     => '19910524050000'
+          },{
+            'varfrom' => '100.00',
+            'varto'   => '100',
+            'anyqual' => 1
+          },{
+            'varfrom'      => '10.00',
+            'varto'        => '10',
+            'accum_period' => '60'
+          }
+        ]
+      }
+    },5000);
+
+    ##################################################
+    #####               get_db_info              #####
+    ##################################################
+
+    dotest('example_get_db_info_complex_filter_sites',{
+      'function' => 'get_db_info',
+      'version'  => 2,
+      'params'   => {
+        'table_name'  => 'gaugings',
+        'return_type' => 'array',
+        'field_list'  => ['stn'],
+        'complex_filter' => [
+          {
+            'fieldname' => 'stn',
+            'operator'  => 'EQ',
+            'value'     => '210002'
+          }
+        ]
+      }
+    }, 20000);
+
+    dotest('example_get_db_info_complex_filter_dates',{
+      'function' => 'get_db_info',
+      'version'  => 2,
+      'params'   => {
+        'table_name'  => 'gaugings',
+        'return_type' => 'array',
+        'field_list'  => ['stn','meas_date'],
+        'complex_filter' => [
+          {
+            'fieldname' => 'stn',
+            'operator'  => 'EQ',
+            'value'     => '210002'
+          },{
+            'fieldname' => 'meas_date',
+            'operator'  => 'GE',
+            'value'     => '19860101'
+          },{
+            'fieldname' => 'meas_date',
+            'operator'  => 'LE',
+            'value'     => '19870101'
+          }
+        ]
+      }
+    }, 20000);
+
+    dotest('example_get_db_info_complex_filter_numbers',{
+      'function' => 'get_db_info',
+      'version'  => 2,
+      'params'   => {
+        'table_name'     => 'site',
+        'return_type'    => 'array',
+        'field_list'     => ['station', 'latitude', 'longitude', 'elev'],
+        'complex_filter' => [
+          {
+            'fieldname' => 'elev',
+            'operator'  => 'GE',#elev is greater than or equal to 682
+            'value'     => '682',
+          },{
+            'combine'   => 'AND',
+            'left'      => '(',
+            'fieldname' => 'elev',
+            'operator'  => 'LE',#elev is less than or equal to 1000
+            'value'     => '1000',
+          },{
+            'fieldname' => 'longitude',
+            'operator'  => 'GT',#longitude is greater than 149.9
+            'value'     => '149.9',
+          },{
+            'not'       => 'NOT',
+            'left'      => '(',
+            'fieldname' => 'longitude',
+            'operator'  => 'LT',#longitude is less than 175
+            'value'     => '175',
+            'right'     => ')',
+          },{
+            'fieldname' => 'latitude',
+            'operator'  => 'EQ',#latitude is equal to -30.855
+            'value'     => '-30.85500000',
+          },{
+            'fieldname' => 'longitude',
+            'operator'  => 'NE',
+            'value'     => '0.0000000',
+             'right'    => ')',
+          }
+        ]
+      }
+    }, 20000);
+
+    dotest('example_get_db_info_complex_filter_LE_GE',{
+      'function' => 'get_db_info',
+      'version'  => 2,
+      'params'   => {
+        'table_name'  => 'site',
+        'return_type' => 'array',
+        'field_list'  => ['station', 'latitude', 'longitude', 'elev'],
+        'complex_filter' => [
+          {
+            'fieldname' => 'station',
+            'operator'  => 'LE',
+            'value'     => 'aaaaaaaaaaaaaaa',
+          },{
+            'fieldname' => 'station',
+            'operator'  => 'GE',
+            'value'     => 'a',
+          }
+        ]
+      }
+    }, 20000);
+
+    dotest('example_get_db_info_complex_filter_LT_GT',{
+      'function' => 'get_db_info',
+      'version'  => 2,
+      'params'   => {
+        'table_name'  => 'site',
+        'return_type' => 'array',
+        'field_list'  => ['station', 'latitude', 'longitude', 'elev'],
+        'complex_filter' => [
+          {
+            'fieldname' => 'station',
+            'operator'  => 'LT',
+            'value'     => 'aaaaaaaaaaaaaaa',
+          },{
+            'fieldname' => 'station',
+            'operator'  => 'GT',
+            'value'     => 'a',
+          }
+        ]
+      }
+    }, 20000);
+
+    dotest('example_get_db_info_complex_filter_bracketing',{
+      'function' => 'get_db_info',
+      'version'  => 2,
+      'params'   => {
+        'table_name'     => 'site',
+        'return_type'    => 'array',
+        'field_list'     => ['station', 'latitude', 'longitude', 'elev'],
+        'complex_filter' => [
+          {
+            'fieldname' => 'station',
+            'operator'  => 'CONT',
+            'value'     => '210002',
+          },{
+            'left'      => '(',
+            'fieldname' => 'station',
+            'operator'  => 'EQ',
+            'value'     => 'HYDSYS01.1',
+          },{
+            'combine'   => 'OR',
+            'fieldname' => 'station',
+            'operator'  => 'NE',
+            'value'     => 'HYDSYS01.1',
+            'right'     => ')',
+          }
+        ]
+      }
+    }, 20000);
+
+    dotest('example_get_db_info_complex_filter',{
+      'function' => 'get_db_info',
+      'version'  => 2,
+      'params'   => {
+        'table_name'     => 'site',
+        'return_type'    => 'array',
+        'field_list'     => ['station', 'latitude', 'longitude', 'elev'],
+        'complex_filter' => [
+          {
+            'fieldname' => 'station',
+            'operator'  => 'EQ',
+            'value'     => 'HYDSYS01.1',
+          },{
+            'fieldname' => 'station',
+            'operator'  => 'NE',
+            'value'     => 'HYDSYS01.1',
+          }
+        ]
+      }
+    }, 20000);
+
+    dotest('example_get_db_info_geo_filter_rectangle',{
+      'function' => 'get_db_info',
+      'version'  => 2,
+      'params'   => {
+        'table_name'  => 'site',
+        'return_type' => 'array',
+        'field_list'  => ['station', 'latitude', 'longitude'],
+        'geo_filter'  => {
+          'rectangle' => [['-35.35','149.5'],['-35.4','150']]
+        }
+      }
+    }, 20000);
+
+    dotest('example_get_db_info_geo_filter_circle',{
+      'function' => 'get_db_info',
+      'version'  => 2,
+      'params'   => {
+        'table_name'  => 'site',
+        'return_type' => 'array',
+        'field_list'  => ['station', 'latitude', 'longitude'],
+        'sitelist_filter' => 'match(210*)',
+        'geo_filter'  => {
+          'circle' => ['-32.26','150.89','0.5']
+        }
+      }
+    }, 20000);
+
+    dotest('NOW_PROV_Near_Muswellbrook',{
+      'function' => 'get_db_info',
+      'version'  => 2,
+      'params'   => {
+        'table_name'  => 'site',
+        'return_type' => 'array',
+        'field_list'  => ['station', 'stnname','shortname' ,'latitude', 'longitude', 'elev'],
+        'sitelist_filter' => 'FILTER(TSFILES(PROV),MATCH(2*))',
+        'geo_filter'  => {
+          'circle' => ['-32.26','150.89','0.5']
+        }
+      }
+    }, 20000);
+
+    dotest('example_get_db_info_geo_filter_region',{
+      'function' => 'get_db_info',
+      'version'  => 2,
+      'params'   => {
+        'table_name'  => 'site',
+        'return_type' => 'array',
+        'field_list'  => ['station', 'latitude', 'longitude'],
+        'sitelist_filter' => 'match(210*)',
+        'geo_filter'  => {
+          'region' => [['-35.35','149.5'],['-35.4','149.5'],['-35.4','150']]
+        }
+      }
+    }, 20000);
+
+    dotest('example_get_db_info_general',{
+      'function' => 'get_db_info',
+      'version'  => 2,
+      'params'   => {
+        'table_name'      => 'site',
+        'return_type'     => 'array',
+        'field_list'  => ['station', 'stname','shortname' ,'latitude', 'longitude', 'elev'],
+		'sitelist_filter' => 'match(hyd*)',
+        'geo_filter'      => {
+          'circle' => ['-35.33333333','149.30277778',3]
+        },
+        'complex_filter'  => [{
+          'fieldname' => 'elev',
+          'operator'  => 'GE',
+          'value'     => '500',
+        }],
+      }
+    }, 20000);
+
+    dotest('NOW_PROV_like',{
+      'function' => 'get_db_info',
+      'version'  => 2,
+      'params'   => {
+        'table_name'      => 'site',
+        'return_type'     => 'array',
+        'field_list'  => ['station', 'stname','shortname' ,'latitude', 'longitude', 'elev'],        
+		'sitelist_filter' => 'FILTER(TSFILES(PROV),MATCH(210*))',
+      }
+    }, 20000);
+	
+	
+    dotest('example_get_db_info_filter_values',{
+      'function' => 'get_db_info',
+      'version'  => 2,
+      'params'   => {
+        'table_name'  => 'datadict',
+        'return_type' => 'array',
+        'field_list'  => ['validcode','validkey','fldname','dbname','visible'],
+        'filter_values'  => {
+          'dbname'  => 'gwhole  ',
+          'visible' => 'true'
+        }
+      }
+    }, 317934);
+
+    my @operators = ("GT","LT","GE","LE","NE","EQ","CONT","IN","LIKE","NOTCONT","NOTIN");
+    my @fields    = ("station");
+    my @values    = ("hyd","sys","ab","te","x");
+
+    for (my $complexCounter = 0; $complexCounter < scalar(@operators) * scalar(@fields) * 2; $complexCounter++) {
+      dotest('test_get_db_info_complex_filter_string_'.$complexCounter,{
+        'function' => 'get_db_info',
+        'version'  => 2,
+        'params'   => {
+          'table_name'     => 'site',
+          'return_type'    => 'array',
+          'field_list'     => ['station'],
+         #'sitelist_filter'=> 'CACHE(FILTER(TABLE(SITE),NOT(ANYOF(BETWEEN(0,9Z),MATCH(G*),MATCH(E*),MATCH(S*),MATCH(F*)))),20)',
+          'sitelist_filter'=>       'FILTER(TABLE(SITE),NOT(ANYOF(BETWEEN(0,9Z),MATCH(G*),MATCH(E*),MATCH(S*),MATCH(F*))))',
+          'complex_filter' => [
+            {
+              'fieldname' => $fields[$complexCounter % scalar(@fields)],
+              'operator'  => $operators[$complexCounter % scalar(@operators)],
+              'value'     => $values[$complexCounter % scalar(@values)]
+            },{
+              'fieldname' => $fields[$complexCounter / 2 % scalar(@fields)],
+              'operator'  => $operators[$complexCounter / 2 % scalar(@operators)],
+              'value'     => $values[$complexCounter / 2 % scalar(@values)]
+            }
+          ]
+        }
+      }, 20000);
+    }
+
+    @operators = ("GT","LT","GE","LE","NE","EQ");
+    @fields    = ("longitude","latitude");
+    @values    = ("0","35","-35","140","-140");
+
+    for (my $complexCounter = 0; $complexCounter < scalar(@operators) * scalar(@fields); $complexCounter++) {
+      dotest('test_get_db_info_complex_filter_number_'.$complexCounter,{
+        'function' => 'get_db_info',
+        'version'  => 2,
+        'params'   => {
+          'table_name'     => 'site',
+          'return_type'    => 'array',
+          'field_list'     => ['station', 'latitude', 'longitude'],
+         #'sitelist_filter'=> 'CACHE(FILTER(TABLE(SITE),NOT(ANYOF(BETWEEN(0,9Z),MATCH(G*),MATCH(E*),MATCH(S*),MATCH(F*)))),20)',
+          'sitelist_filter'=>       'FILTER(TABLE(SITE),NOT(ANYOF(BETWEEN(0,9Z),MATCH(G*),MATCH(E*),MATCH(S*),MATCH(F*))))',
+          'complex_filter' => [
+            {
+              'fieldname' => $fields[$complexCounter % scalar(@fields)],
+              'operator'  => $operators[$complexCounter % scalar(@operators)],
+              'value'     => $values[$complexCounter % scalar(@values)]
+            },{
+              'fieldname' => $fields[$complexCounter / 2 % scalar(@fields)],
+              'operator'  => $operators[$complexCounter / 2 % scalar(@operators)],
+              'value'     => $values[$complexCounter / 2 % scalar(@values)]
+            }
+          ]
+        }
+      }, 20000);
+    }
+
+    @operators = ("GT","LT","GE","LE","NE","EQ");
+    @fields    = ("meas_date");
+    @values    = ("19760101000000","19760601","19770101000000","19770601","01/01/1978");
+
+    for (my $complexCounter = 0; $complexCounter < scalar(@operators) * scalar(@fields) * 3; $complexCounter++) {
+      dotest('test_get_db_info_complex_filter_dates_'.$complexCounter,{
+        'function' => 'get_db_info',
+        'version'  => (2 - (($complexCounter / 5) % 2)),
+        'params'   => {
+          'table_name'     => 'gaugings',
+          'return_type'    => 'array',
+          'field_list'     => ['stn','meas_date'],
+          'complex_filter' => [
+            {
+              'fieldname' => 'stn',
+              'operator'  => 'EQ',
+              'value'     => '210002'
+            },{
+              'fieldname' => $fields[$complexCounter % scalar(@fields)],
+              'operator'  => $operators[$complexCounter % scalar(@operators)],
+              'value'     => $values[$complexCounter % scalar(@values)]
+            },{
+              'fieldname' => $fields[$complexCounter / 2 % scalar(@fields)],
+              'operator'  => $operators[$complexCounter / 2 % scalar(@operators)],
+              'value'     => $values[$complexCounter / 2 % scalar(@values)]
+            }
+          ]
+        }
+      }, 20000);
+    }
+
+    ##################################################
+    #####               get_widget               #####
+    ##################################################
+
+    dotest('example_get_widget_plotlet',{
+      'function' => 'get_widget',
+      'version'  => 1,
+      'params'   => {
+        'widgets' => [
+          {
+            'widget_type'               => 'plotlet',
+            'widget_width'              => '400',
+            'widget_height'             => '400',
+            'id'                        => 'first',
+            'title'                     => 'HYDSYS01 Latest Data',
+            'title_height'              => '9',
+            'starttime'                 => '19600221000000',
+            'endtime'                   => '19600326000000',
+            'interval'                  => 'hour',
+            'interval_multiplier'       => '3',
+            'show_lines'                => 'yes',
+            'show_points'               => 'yes',
+            'filled'                    => 'no',
+            'invert'                    => 'no',
+            'background_color'          => 'yellow',
+            'background_gradient_color' => 'transparent_color',
+            'fill_color'                => 'transparent_color',
+            'fill_gradient_color'       => 'orange',
+            'show_bad_qual'             => '1',
+            'trace_requests'            => [
+              {
+                'site'       => '210002',
+                'datasource' => 'A',
+                'varfrom'    => '100',
+                'varto'      => '100.00',
+                'trace_type' => 'point',
+                'axis_align' => 'left',
+                'color'      => '$FF0000',
+                'bad_color'  => 'blue'
+              },{
+                'site'       => '210002',
+                'datasource' => 'A',
+                'varfrom'    => '100',
+                'varto'      => '100.00',
+                'trace_type' => 'maxmin',
+                'axis_align' => 'left',
+                'color'      => 'orange',
+                'bad_color'  => 'blue'
+              }
+            ]
+          },{
+            'widget_type'               => 'plotlet',
+            'widget_width'              => '400',
+            'widget_height'             => '400',
+            'id'                        => 'first',
+            'title'                     => 'HYDSYS01 Latest Data',
+            'title_height'              => '9',
+            'starttime'                 => '19600221000000',
+            'endtime'                   => '19600225000000',
+            'interval'                  => 'hour',
+            'interval_multiplier'       => '3',
+            'show_lines'                => 'yes',
+            'show_points'               => 'no',
+            'filled'                    => 'no',
+            'invert'                    => 'no',
+            'background_color'          => 'yellow',
+            'background_gradient_color' => 'transparent_color',
+            'fill_color'                => 'transparent_color',
+            'fill_gradient_color'       => 'orange',
+            'show_bad_qual'             => '1',
+            'trace_requests'            => [
+              {
+                'site'       => '210002',
+                'datasource' => 'A',
+                'varfrom'    => '100',
+                'varto'      => '100.00',
+                'trace_type' => 'max',
+                'axis_align' => 'left',
+                'color'      => 'RED',
+                'bad_color'  => 'blue'
+              },{
+                'site'       => '210002',
+                'datasource' => 'A',
+                'varfrom'    => '100',
+                'varto'      => '100.00',
+                'trace_type' => 'pointbnds',
+                'axis_align' => 'left',
+                'color'      => 'green',
+                'bad_color'  => 'blue'
+              },{
+                'site'       => '210002',
+                'datasource' => 'A',
+                'varfrom'    => '100',
+                'varto'      => '100.00',
+                'trace_type' => 'min',
+                'axis_align' => 'left',
+                'color'      => 'orange',
+                'bad_color'  => 'blue'
+              }
+            ]
+          },{
+            'widget_type'               => 'plotlet',
+            'widget_width'              => '400',
+            'widget_height'             => '400',
+            'id'                        => 'first',
+            'title'                     => 'HYDSYS01 Latest Data',
+            'title_height'              => '9',
+            'starttime'                 => '19600221000000',
+            'period'                    => 'day',
+            'period_multiplier'         => '4',
+            'interval'                  => 'hour',
+            'interval_multiplier'       => '3',
+            'show_lines'                => 'yes',
+            'show_points'               => 'no',
+            'filled'                    => 'no',
+            'invert'                    => 'no',
+            'background_color'          => 'yellow',
+            'background_gradient_color' => 'transparent_color',
+            'fill_color'                => 'transparent_color',
+            'fill_gradient_color'       => 'orange',
+            'show_bad_qual'             => '1',
+            'trace_requests'            => [
+              {
+                'site'       => '210002',
+                'datasource' => 'A',
+                'varfrom'    => '100',
+                'varto'      => '100.00',
+                'trace_type' => 'max',
+                'axis_align' => 'left',
+                'color'      => 'red',
+                'bad_color'  => 'blue'
+              },{
+                'site'       => '210002',
+                'datasource' => 'A',
+                'varfrom'    => '100',
+                'varto'      => '100.00',
+                'trace_type' => 'pointbnds',
+                'axis_align' => 'left',
+                'color'      => 'green',
+                'bad_color'  => 'blue'
+              },{
+                'site'       => '210002',
+                'datasource' => 'A',
+                'varfrom'    => '100',
+                'varto'      => '100.00',
+                'trace_type' => 'min',
+                'axis_align' => 'left',
+                'color'      => 'orange',
+                'bad_color'  => 'blue'
+              }
+            ]
+          }
+        ]
+      }},80000
+    );
+
+    dotest('example_get_widget_weir',{
+      'function' => 'get_widget',
+      'version'  => 1,
+      'params'   => {
+        'widgets' => [
+          {
+            'widget_type'         => 'weir',
+            'widget_width'        => '400',
+            'widget_height'       => '400',
+            'id'                  => 'yep',
+            'fill_color'          => 'red',
+            'fill_gradient_color' => 'transparent_color',
+            'layout' => {
+              'base'              => '0',
+              'weir_height'       => '4',
+              'full_scale'        => '5',
+              'title'             => 'Wobbly Weir',
+              'show_scale'        => 'yes',
+              'box_fill'          => 'orange',
+              'box_gradient_fill' => 'yellow',
+              'level_fill'        => 'blue',
+              'weir_fill'         => 'silver',
+              'value_text_color'  => 'blue',
+              'weir_width'        => '8',
+              'value_text_height' => '10',
+              'value_text_limit'  => '15',
+              'top_margin'        => '10',
+              'left_margin'       => '15',
+              'right_margin'      => '5',
+              'bottom_margin'     => '5',
+              'shadow'            => 'yes'
+            },
+            'left_side' => {
+              'offset'              => '0.0',
+              'value_snapshot_data' => {
+                'site'           => '210002',
+                'datasource'     => 'A',
+                'varfrom'        => '100.00',
+                'varto'          => '100',
+                'starttime'      => '19750918000000',
+                'endtime'        => '19750921000000',
+                'value_type'     => 'last',
+                'value_format'   => '%VALUE%ML',
+                'missing_format' => '(Missing)',
+                'precision'      => '0.001'
+              }
+            },
+            'right_side' => {
+              'offset'              => '0.0',
+              'value_snapshot_data' => {
+                'site'           => '210002',
+                'datasource'     => 'A',
+                'varfrom'        => '100.00',
+                'varto'          => '100',
+                'starttime'      => '19750918000000',
+                'endtime'        => '19750921000000',
+                'value_format'   => '%VALUE%',
+                'missing_format' => '(Missing)',
+                'precision'      => '0.001',
+                'value_type'     => 'last'
+              }
+            },
+            'reference_levels' => [
+              {
+                'level' => '4.0',
+                'color' => 'aqua',
+                'style' => 'dot',
+                'label' => '2010'
+              },{
+                'level' => '3.2',
+                'color' => 'red',
+                'style' => 'dot',
+                'label' => '2009'
+              }
+            ]
+          }
+        ]
+      }
+    },50000);
+
+    dotest('example_get_widget_storage',{
+      'function' => 'get_widget',
+      'version'  => 1,
+      'params'   => {
+        'widgets' => [
+          {
+            'widget_type'         => 'storage',
+            'widget_width'        => '400',
+            'widget_height'       => '400',
+            'id'                  => 'other',
+            'fill_color'          => 'green',
+            'fill_gradient_color' => 'transparent_color',
+            'layout' => {
+              'title_1'       => 'Lake Fido Storage',
+              'title_2'       => '%VALUE% GL',
+              'title_color'   => 'blue',
+              'top_margin'    => '10',
+              'left_margin'   => '5',
+              'right_margin'  => '5',
+              'bottom_margin' => '5',
+              'storage_min'   => '-0.01',
+              'storage_max'   => '5.0',
+              'shape'         => 'cone',
+              'shadow'        => 'yes',
+              'font_limit'    => '15',
+              'outline_color' => 'red',
+              'fill_color'    => 'blue'
+            },
+            'value_snapshot_data' => {
+              'site'           => '210002',
+              'datasource'     => 'A',
+              'varfrom'        => '100.00',
+              'varto'          => '100',
+              'starttime'      => '19750918000000',
+              'endtime'        => '19750921000000',
+              'precision'      => '0.001',
+              'value_type'     => 'last',
+              'value_format'   => '%VALUE%',
+              'missing_format' => '(Missing)',
+            },
+            'reference_levels' => [
+              {
+                'level' => '4.5',
+                'color' => 'aqua',
+                'style' => 'dot',
+                'label' => '2010'
+              },{
+                'level' => '4.0',
+                'color' => 'red',
+                'style' => 'dot',
+                'label' => '2009'
+              }
+            ]
+          }
+        ]
+      }
+    },50000);
+
+    #my @times = ("19750923000000","19750928000000","19751003000000","19751008000000");
+    #my @multipliers = ("3","6","12","24");
+    #my @trace_types = ("period","max","min","cum","start","end","first","last","startpoint","endpoint","maxmin","maxminpt","point","pointbnds");
+    #my @intervals = ("second","minute","hour","day","month","year");
+    my @times       = ("19750928000000","19751008000000");
+    my @multipliers = ("6","24");
+    my @trace_types = ("period","max","min","cum","maxmin","maxminpt","point","pointbnds");
+    my @switch      = ("yes","no");
+    my @colours     = ("-1","transparent_color","red","yellow");
+    my @shapes      = ("semiellipse","roundedrectangle","vnotch","opentrapezoid","narrowbar");
+    my @intervals   = ("hour","day");
+
+    for (my $count = 0; $count < scalar(@times) * scalar(@multipliers) * scalar(@trace_types); $count++) {
+      #output increasing variations
+      my $endtime       = $times[$count % scalar(@times)];
+      my $interval_mult = $multipliers[(int($count / scalar(@times)) % scalar(@multipliers))];
+      my $trace_type    = $trace_types[(int($count / (scalar(@times) * scalar(@multipliers))) % scalar(@trace_types))];
+
+      #non output increasing variations
+      my $interval      = $intervals[$count % scalar(@intervals)];
+
+      #colour variations
+      my $fill_color                = $colours[(($count % 5) % 4)];
+      my $fill_gradient_color       = $colours[($count % 6) % 4];
+      my $background_color          = $colours[1 + (($count % 7) % 3)];
+      my $background_gradient_color = $colours[($count % 8) % 4];
+
+      dotest("test_get_widget_plotlet_1_${endtime}_${interval_mult}_$trace_type",{
+        'function' => 'get_widget',
+        'version'  => 1,
+        'params'   => {
+          'widgets' => [
+            {
+              'widget_type'               => 'plotlet',
+              'widget_width'              => '400',
+              'widget_height'             => '400',
+              'id'                        => 'first',
+              'title'                     => "HYDSYS01 Latest Data ${endtime}_${interval_mult}_$trace_type",
+              'title_height'              => '9',
+              'starttime'                 => '19750918000000',
+              'endtime'                   => $endtime,
+              'interval'                  => $interval,
+              'interval_multiplier'       => $interval_mult,
+              'show_lines'                => $switch[$count % 2],
+              'show_points'               => $switch[(($count + 1) / 2) % 2],
+              'filled'                    => $switch[($count / 3) % 2],
+              'invert'                    => $switch[($count / 5) % 2],
+              'background_color'          => $background_color,
+              'background_gradient_color' => $background_gradient_color,
+              'fill_color'                => $fill_color,
+              'fill_gradient_color'       => $fill_gradient_color,
+              'show_bad_qual'             => '1', #there's no bad qual in this trace
+              'trace_requests'            => [
+                {
+                  'site'       => '210002',
+                  'datasource' => 'A',
+                  'varfrom'    => '100',
+                  'varto'      => '100.00',
+                  'trace_type' => $trace_type,
+                  'axis_align' => 'left',
+                  'color'      => 'cyan',
+                  'bad_color'  => 'blue'
+                },{
+                  'site'       => '210002',
+                  'datasource' => 'A',
+                  'varfrom'    => '170',
+                  'varto'      => '170.00',
+                  'trace_type' => $trace_type,
+                  'axis_align' => 'right',
+                  'color'      => 'green',
+                  'bad_color'  => 'blue'
+                },{
+                  'site'       => '210002',
+                  'datasource' => 'A',
+                  'varfrom'    => '100',
+                  'varto'      => '140.00',
+                  'trace_type' => $trace_type,
+                  'axis_align' => 'left',
+                  'color'      => 'pink',
+                  'bad_color'  => 'blue'
+                }
+              ]
+            }
+          ]
+        }
+      },50000);
+
+      dotest("test_get_widget_plotlet_2_${endtime}_${interval_mult}_$trace_type",{
+        'function' => 'get_widget',
+        'version'  => 1,
+        'params'   => {
+          'widgets' => [
+            {
+              'widget_type'               => 'plotlet',
+              'widget_width'              => '400',
+              'widget_height'             => '400',
+              'id'                        => 'first',
+              'title'                     => "HYDSYS01 Latest Data ${endtime}_${interval_mult}_$trace_type",
+              'title_height'              => '9',
+              'starttime'                 => '19750918000000',
+              'period'                    => $intervals[$count / 3 % 2],
+              'period_multiplier'         => $multipliers[$count / 2 % 2],
+              'interval'                  => $interval,
+              'interval_multiplier'       => $interval_mult,
+              'show_lines'                => $switch[$count % 2],
+              'show_points'               => $switch[(($count + 1) / 2) % 2],
+              'filled'                    => $switch[($count / 3) % 2],
+              'invert'                    => $switch[($count / 5) % 2],
+              'background_color'          => $background_color,
+              'background_gradient_color' => $background_gradient_color,
+              'fill_color'                => $fill_color,
+              'fill_gradient_color'       => $fill_gradient_color,
+              'show_bad_qual'             => '1', #there's no bad qual in this trace
+              'trace_requests'            => [
+                {
+                  'site'       => '210002',
+                  'datasource' => 'A',
+                  'varfrom'    => '100',
+                  'varto'      => '100.00',
+                  'trace_type' => $trace_type,
+                  'axis_align' => 'left',
+                  'color'      => 'cyan',
+                  'bad_color'  => 'blue'
+                },{
+                  'site'       => '210002',
+                  'datasource' => 'A',
+                  'varfrom'    => '170',
+                  'varto'      => '170.00',
+                  'trace_type' => $trace_type,
+                  'axis_align' => 'right',
+                  'color'      => 'green',
+                  'bad_color'  => 'blue'
+                },{
+                  'site'       => '210002',
+                  'datasource' => 'A',
+                  'varfrom'    => '100',
+                  'varto'      => '140.00',
+                  'trace_type' => $trace_type,
+                  'axis_align' => 'left',
+                  'color'      => 'pink',
+                  'bad_color'  => 'blue'
+                }
+              ]
+            }
+          ]
+        }
+      },50000);
+
+      $fill_color = $colours[1 + (($count % 5) % 3)];
+      my $shape = $shapes[$count % scalar(@shapes)];
+
+      dotest("test_get_widget_storage_${endtime}_${interval_mult}_$trace_type",{
+        'function' => 'get_widget',
+        'version'  => 1,
+        'params'   => {
+          'widgets' => [
+            {
+              'widget_type'         => 'storage',
+              'widget_width'        => '400',
+              'widget_height'       => '400',
+              'id'                  => 'other',
+              'fill_color'          => $background_color,
+              'fill_gradient_color' => $background_gradient_color,
+              'layout' => {
+                'title_1'       => "Lake Fido Storage ${endtime}_${interval_mult}_$trace_type",
+                'title_2'       => '%VALUE% GL',
+                'title_color'   => 'blue',
+                'top_margin'    => ''.(5 + $count % 5),
+                'left_margin'   => ''.(2 + $count % 3),
+                'right_margin'  => ''.(2 + $count % 3),
+                'bottom_margin' => ''.(2 + $count % 3),
+                'storage_min'   => '-0.'.($count % 5),
+                'storage_max'   => ''.(5 + $count % 5),
+                'shape'         => $shape,
+                'shadow'        => $switch[$count % 2],
+                'font_limit'    => '15',
+                'outline_color' => 'red',
+                'fill_color'    => $fill_color
+              },
+              'value_snapshot_data' => {
+                'site'           => '210002',
+                'datasource'     => 'A',
+                'varfrom'        => '100.00',
+                'varto'          => '100',
+                'starttime'      => '19750918000000',
+                'endtime'        => $endtime,
+                'precision'      => '0.001',
+                'value_type'     => $trace_type,
+                'value_format'   => '%VALUE%',
+                'missing_format' => '(Missing)',
+              },
+              'reference_levels' => [
+                {
+                  'level' => '4.5',
+                  'color' => 'aqua',
+                  'style' => 'dot',
+                  'label' => '2010'
+                },{
+                  'level' => '4.0',
+                  'color' => 'red',
+                  'style' => 'dot',
+                  'label' => '2009'
+                }
+              ]
+            }
+          ]
+        }
+      },50000);
+
+      $fill_color = $colours[($count % 5) % 4];
+
+      dotest("test_get_widget_weir_${endtime}_${interval_mult}_$trace_type",{
+        'function' => 'get_widget',
+        'version'  => 1,
+        'params'   => {
+          'widgets' => [
+            {
+              'widget_type'         => 'weir',
+              'widget_width'        => '400',
+              'widget_height'       => '400',
+              'id'                  => 'yep',
+              'fill_color'          => $background_color,
+              'fill_gradient_color' => $background_gradient_color,
+              'layout' => {
+                'base'              => ''.($count % 2),
+                'weir_height'       => ''.(2 + $count % 3),
+                'full_scale'        => ''.(4 + $count % 5),
+                'title'             => "Wobbly Weir ${endtime}_${interval_mult}_$trace_type",
+                'show_scale'        => $switch[$count / 3 % 2],
+                'box_fill'          => $fill_color,
+                'box_gradient_fill' => $fill_gradient_color,
+                'level_fill'        => 'blue',
+                'weir_fill'         => 'silver',
+                'value_text_color'  => 'blue',
+                'weir_width'        => ''.(5 + $count % 4),
+                'value_text_height' => '10',
+                'value_text_limit'  => '15',
+                'top_margin'        => ''.(8 + $count % 3),
+                'left_margin'       => ''.(12 + $count % 4),
+                'right_margin'      => ''.(2 + $count % 4),
+                'bottom_margin'     => ''.(2 + $count % 4),
+                'shadow'            => $switch[$count / 2 % 2]
+              },
+              'left_side' => {
+                'offset'              => '0.0',
+                'value_snapshot_data' => {
+                  'site'           => '210002',
+                  'datasource'     => 'A',
+                  'varfrom'        => '100.00',
+                  'varto'          => '100',
+                  'starttime'      => '19750918000000',
+                  'endtime'        => $endtime,
+                  'value_type'     => $trace_type,
+                  'value_format'   => '%VALUE%ML',
+                  'missing_format' => '(Missing)',
+                  'precision'      => '0.001'
+                }
+              },
+              'right_side' => {
+                'offset'              => '0.0',
+                'value_snapshot_data' => {
+                  'site'           => '210002',
+                  'datasource'     => 'A',
+                  'varfrom'        => '100.00',
+                  'varto'          => '140',
+                  'starttime'      => '19750918000000',
+                  'endtime'        => $endtime,
+                  'value_format'   => '%VALUE%',
+                  'missing_format' => '(Missing)',
+                  'precision'      => '0.001',
+                  'value_type'     => $trace_type
+                }
+              },
+              'reference_levels' => [
+                {
+                  'level' => '4.0',
+                  'color' => 'aqua',
+                  'style' => 'dot',
+                  'label' => '2010'
+                },{
+                  'level' => '3.2',
+                  'color' => 'red',
+                  'style' => 'dot',
+                  'label' => '2009'
+                }
+              ]
+            }
+          ]
+        }
+      },50000);
+    }
+  }
