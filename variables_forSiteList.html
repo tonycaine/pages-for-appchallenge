@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Get the Latest Data for Sites in SiteList</title>
+    <title>Get the Variables and their date Period for a SiteList</title>
 
     <script type="text/javascript"> 
     function get_data(form) {
@@ -18,7 +18,7 @@
       var datasource  = form.datasource.value;
       console.log('get_data sitelist:['+sitelist+'] datasource:['+datasource+']');
 
-      var url = 'http://realtimedata.water.nsw.gov.au/cgi/webservice.server.pl?jsoncallback=printData&{"function":"get_variable_list","version":"1","params":{"site_list":"'+sitelist+'","datasource":"PROV"}}'; 
+      var url = 'http://realtimedata.water.nsw.gov.au/cgi/webservice.server.pl?jsoncallback=printData&{"function":"get_variable_list","version":"1","params":{"site_list":"'+sitelist+'","datasource":"'+datasource+'"}}'; 
 	  
       console.log('get_data url:['+url+']');
 	  
