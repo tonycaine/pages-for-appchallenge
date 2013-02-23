@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Get the Latest Data for Sites in SiteList</title>
+    <title>Get the TimeSeries Data for Sites in SiteList</title>
 
     <script type="text/javascript"> 
     function get_data(form) {
@@ -71,7 +71,7 @@
 			  }
 			}
 		  }
-	  results.reverse(); 
+	  //results.reverse(); 
       document.getElementById('result').innerHTML = '<table boder="1">'+header+results.join('\n')+'</table>';
     } 
 
@@ -86,7 +86,7 @@
 
     <form name="getdata">
       <p>Sitelist 
-        <input name="sitelist" type="text" value="FILTER(TSFILES(PROV),MATCH(210*))" size="100" />
+        <input name="sitelist" type="text" value="FILTER(TSFILES(PROV),MATCH(21000*))" size="100" />
       </p>
       <p>VarFrom 
         <input name="varfrom" type="text" value="100" /> <br/>
@@ -97,7 +97,7 @@
        <p>DateFrom 
         <input name="datefrom" type="text" value="20130101000000" /><br/> 
         DateTo 
-        <input name="dateto" type="text" value="20130201000000" /><br/>
+        <input name="dateto" type="text" value="20130107000000" /><br/>
       </p>
       
       <p>
